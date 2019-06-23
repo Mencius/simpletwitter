@@ -71,9 +71,14 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(String... p_verifier) {
             try {
-                AccessToken l_token = twitter.getOAuthAccessToken(m_twitterToken, p_verifier[0]);
-
-                SaveTokens (l_token);
+                AccessToken l_token;
+                if (p_verifier.length > 0) {
+                    l_token = twitter.getOAuthAccessToken(m_twitterToken, p_verifier[0]);
+                    SaveTokens(l_token);
+                } else { // no verifier provided = re-authentication
+                    l_token = GetAccessTokenFromPrefs();
+                    twitter.setOAuthAccessToken(l_token);
+                }
 
                 long l_userID = l_token.getUserId();
                 User l_user = twitter.showUser(l_userID);
@@ -159,18 +164,7 @@ public class LoginActivity extends AppCompatActivity {
             twitter.setOAuthConsumer(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET);
         }
 
-        AccessToken l_accessToken = GetAccessTokenFromPrefs();
-        twitter.setOAuthAccessToken(l_accessToken);
-
-        try {
-            long l_userID = l_accessToken.getUserId();
-            User l_user = twitter.showUser(l_userID);
-
-            StartTimelineActivity(l_user.getName());
-        } catch (Exception e) {
-            Log.e("Twitter Error (2)", e.toString());
-            ClearTokens();
-        }
+        new AsyncTwitterToken ().execute();
     }
 
     @Override

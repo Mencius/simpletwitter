@@ -6,10 +6,13 @@ import android.os.AsyncTask;
 import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -20,7 +23,13 @@ import twitter4j.Status;
 import twitter4j.TwitterException;
 
 public class TimelineActivity extends AppCompatActivity {
+    // TODO max tweets for data set -
     private static final int MAX_TWEETS = 50;
+
+    private RecyclerView m_recyclerView;
+    private RecyclerView.Adapter m_adapter;
+    private RecyclerView.LayoutManager m_layoutManager;
+    private ArrayList<String> m_viewDataset;
 
     private class AsyncTwitterTimeline extends AsyncTask<Void, Void, List<Status>> {
         @Override
@@ -37,17 +46,20 @@ public class TimelineActivity extends AppCompatActivity {
         protected void onPostExecute(List<twitter4j.Status> p_timeline) {
             if (p_timeline != null) {
                 runOnUiThread(() -> {
-                    TestWithTimelineAsObservable (p_timeline);
+                    //TestWithTimelineAsObservable (p_timeline);
 
-                    //AddTimelineToView (p_timeline);
-                    //ConnectTimelineObservable();
+                    AddTimelineToView (p_timeline);
+                    ConnectTimelineObservable();
                 });
             }
         }
     }
 
     private void AddStatus(Status p_new) {
-        Log.d ("DEBUG", p_new.getUser().getName() + ":" + p_new.getText());
+        String l_message = p_new.getUser().getName() + ":" + p_new.getText();
+
+        m_viewDataset.add(0, l_message);
+        m_adapter.notifyItemInserted(0);
     }
 
     private void TestWithTimelineAsObservable(List<Status> p_timeline) {
@@ -86,6 +98,15 @@ public class TimelineActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_timeline);
+
+        m_viewDataset = new ArrayList<String>();
+        m_recyclerView = (RecyclerView) findViewById(R.id.timelineRecyclerView);
+        m_layoutManager = new LinearLayoutManager(this);
+        m_adapter = new StatusRecyclerViewAdapter(m_viewDataset);
+
+        m_recyclerView.setHasFixedSize(true);
+        m_recyclerView.setLayoutManager(m_layoutManager);
+        m_recyclerView.setAdapter(m_adapter);
 
         SetUsername();
         new AsyncTwitterTimeline().execute();
