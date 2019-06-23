@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Simple Twitter</string>
+    <string name="button_login">Log in</string>
+    <string name="label_simpletwitter">Simple Twitter</string>
+    <string name="button_logout">Log out</string>
+    <string name="progress_loggingin">Logging in with Twitter...</string>
+</resources>
