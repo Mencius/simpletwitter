@@ -28,7 +28,7 @@ public class LoginActivity extends AppCompatActivity {
 
     public static final String EXTRA_USERNAME = "com.test.simpletwitter.USERNAME";
     public static final String EXTRA_LOGOUT = "com.test.simpletwitter.LOGOUT";
-
+    public static final String EXTRA_OFFLINE = "com.test.simpletwitter.OFFLINE";
 
     private static RequestToken m_twitterToken;
 
@@ -158,6 +158,12 @@ public class LoginActivity extends AppCompatActivity {
         startActivity(l_intent);
     }
 
+    private void StartTimelineActivityOffline() {
+        Intent l_intent = new Intent(this, TimelineActivity.class);
+        l_intent.putExtra(EXTRA_OFFLINE, "");
+        startActivity(l_intent);
+    }
+
     private void ReAuthenticate() {
         if (twitter == null) {
             twitter = TwitterFactory.getSingleton();
@@ -178,6 +184,8 @@ public class LoginActivity extends AppCompatActivity {
             StrictMode.setThreadPolicy(policy);
         }*/
 
+
+
         m_sharedPrefs = getApplicationContext().getSharedPreferences("SimpleTwitterPref", 0);
 
         Intent l_intent = getIntent();
@@ -196,9 +204,16 @@ public class LoginActivity extends AppCompatActivity {
                 //TwitterAccessMainThread (l_verifier);
             }
         } else {
-            Log.d ("DEBUG", "OnCreate - already logged in, get tokens in shared prefs");
+            ConnectionUtils l_connUtils = new ConnectionUtils(this.getApplicationContext());
+            if (l_connUtils.IsAnyConnected()) {
+                Log.d ("DEBUG", "OnCreate - already logged in, get tokens in shared prefs");
 
-            ReAuthenticate();
+                ReAuthenticate();
+            } else {
+                Log.d ("DEBUG", "OnCreate - already logged in, offline mode");
+
+                StartTimelineActivityOffline();
+            }
         }
     }
 

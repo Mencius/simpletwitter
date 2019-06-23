@@ -4,4 +4,5 @@
     <string name="label_simpletwitter">Simple Twitter</string>
     <string name="button_logout">Log out</string>
     <string name="progress_loggingin">Logging in with Twitter...</string>
+    <string name="offline_mode">Offline mode</string>
 </resources>
